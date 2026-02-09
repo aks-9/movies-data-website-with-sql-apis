@@ -15,8 +15,17 @@ A **Python movie database** that integrates with the **OMDb API**. Add movies by
 - Pick a **random movie**  
 - Search by **partial title**  
 - Sort movies by **rating**  
-18. **User Profiles**: Multiple users can have their own personalized movie collections.
-19. **Generate a static website**: Create a personal website (e.g., `John.html`) with your movie details.
+18. **User Profiles**: Create multiple profiles (e.g., John, Sara) and manage separate movie collections.
+19. **Generate a static website**: Generate a personalized HTML page (e.g., `Sara.html`) for each user.
+
+---
+
+## User Profiles
+The app now supports multiple user profiles. Each user's movie collection is stored separately in the database.
+
+- **On Startup**: You will be prompted to select an existing user or create a new one.
+- **Switching Users**: Use option **10. Switch user** from the main menu to change profiles at any time.
+- **Website Generation**: When you generate a website, it will be saved as `{Username}.html` and will only include movies from that user's collection.
 
 ---
 

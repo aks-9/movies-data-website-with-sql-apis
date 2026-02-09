@@ -31,7 +31,7 @@ def select_user():
             if 1 <= choice_int <= len(users):
                 selected_user = users[choice_int - 1]
                 print(f"\nWelcome back, {selected_user['name']}!")
-                return selected_user['id']
+                return selected_user
             elif choice_int == len(users) + 1:
                 new_name = input("Enter name for new user: ").strip()
                 if new_name:
@@ -228,10 +228,11 @@ def command_movies_sorted_by_rating(user_id):
 # Generate Website
 # ------------------------------
 
-def generate_website(user_id):
+def generate_website(current_user):
     """Generate a static website (Username.html) from the current user's movies."""
+    user_id = current_user['id']
+    user_name = current_user['name']
     movies = storage.list_movies(user_id)
-    user_name = storage.get_user_by_id(user_id)
     
     if not movies:
         print("No movies available to generate website.")
@@ -277,7 +278,7 @@ def generate_website(user_id):
 
 def main():
     print("********** My Movies Database **********")
-    user_id = select_user()
+    current_user = select_user()
     
     while True:
         print_menu()
@@ -287,25 +288,25 @@ def main():
             print("Bye!")
             break
         elif choice == "1":
-            command_list_movies(user_id)
+            command_list_movies(current_user['id'])
         elif choice == "2":
-            command_add_movie(user_id)
+            command_add_movie(current_user['id'])
         elif choice == "3":
-            command_delete_movie(user_id)
+            command_delete_movie(current_user['id'])
         elif choice == "4":
-            command_update_movie(user_id)
+            command_update_movie(current_user['id'])
         elif choice == "5":
-            command_stats(user_id)
+            command_stats(current_user['id'])
         elif choice == "6":
-            command_random_movie(user_id)
+            command_random_movie(current_user['id'])
         elif choice == "7":
-            command_search_movie(user_id)
+            command_search_movie(current_user['id'])
         elif choice == "8":
-            command_movies_sorted_by_rating(user_id)
+            command_movies_sorted_by_rating(current_user['id'])
         elif choice == "9":
-            generate_website(user_id)
+            generate_website(current_user)
         elif choice == "10":
-            user_id = select_user()
+            current_user = select_user()
         else:
             print("Invalid choice. Enter a number between 0 and 10.")
 
