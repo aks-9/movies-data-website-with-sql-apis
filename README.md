@@ -15,60 +15,63 @@ A **Python movie database** that integrates with the **OMDb API**. Add movies by
 - Pick a **random movie**  
 - Search by **partial title**  
 - Sort movies by **rating**  
+- **Generate a static website** with movie details
 
 ---
 
 ## Project Structure
-```my-movies-app/
-├─ main.py # Main menu-driven app
-├─ movie_storage_sql.py # SQLAlchemy database storage
-├─ test.py # Automated test script
-├─ data/
-│ └─ movies.db # SQLite database file
-├─ _static/
-│ ├─ index_template.html # HTML template
-│ └─ style.css # CSS for website
-├─ index.html # Generated website
-├─ .env # OMDb API key (not committed)
-├─ .env.example
-└─ .gitignore
-
-
-
----
+```
+12. Project- Movie/
+├── main.py                 # Main menu-driven app
+├── movie_storage_sql.py    # SQL database storage with SQLAlchemy
+├── test.py                 # Automated test script
+├── data/
+│   └── movies.db           # SQLite database file
+├── _static/
+│   ├── index_template.html # HTML template
+│   └── style.css           # CSS for website
+├── index.html              # Generated website
+├── .env                    # OMDb API key (not committed)
+└── .gitignore
+```
 
 ## Requirements
 
 - Python 3.7+  
 - Packages:
-
 ```bash
 pip install sqlalchemy requests python-dotenv
+```
 
 
-##Setup
+## Setup
 
-##Clone the repository:
-
+### Clone the repository:
+```bash
 git clone https://github.com/aks-9/movies-data-website-with-sql-apis.git
-cd my-movies-app
+cd "12. Project- Movie"
+```
 
-##Create a .env file in the root folder (or copy .env.example):
+### Create a .env file in the root folder:
+```text
 OMDB_API_KEY=YOUR_API_KEY_HERE
-Replace YOUR_API_KEY_HERE with your OMDb API key.
-Get a free key at OMDb API
-.
+```
+Replace `YOUR_API_KEY_HERE` with your OMDb API key.
+Get a free key at [OMDb API](http://www.omdbapi.com/apikey.aspx).
 
-
-##Optional: Add .env and database file to .gitignore to keep your key safe:
-
+### Optional: Add .env and database file to .gitignore:
+```text
 .env
 *.db
+```
 
-Running the App
-python movies.py
+## Running the App
+```bash
+python main.py
+```
 
 You will see the menu:
+```text
 Menu:
 0. Exit
 1. List movies
@@ -79,67 +82,62 @@ Menu:
 6. Random movie
 7. Search movie
 8. Movies sorted by rating
-Enter choice (0-8):
+9. Generate website
+Enter choice (0-9):
+```
 
+## Usage Examples
+### Add a Movie
+1. Choose **2. Add movie (OMDb)**
+2. Enter: `Inception`
+3. Movie 'Inception' added successfully.
 
-Usage Examples
-Add a Movie
+### List Movies
+1. Choose **1. List movies**
+2. Output:
+   ```text
+   1 movies in total
+   Inception (2010): 8.8
+   ```
 
-Choose 2. Add movie (OMDb)
+### Update Rating
+1. Choose **4. Update movie rating**
+2. Enter movie title: `Inception`
+3. Enter new rating: `9.0`
+4. Movie 'Inception' updated successfully.
 
-Enter: Inception
-Movie 'Inception' added successfully.
+### Delete Movie
+1. Choose **3. Delete movie**
+2. Enter movie title: `Inception`
+3. Movie 'Inception' deleted successfully.
 
-List Movies
+### Generate Website
+1. Choose **9. Generate website**
+2. Website was generated successfully.
+3. Open `index.html` in your browser.
 
-Choose 1. List movies
-1 movies in total
-Inception (2010): 8.8
-
-
-Update Rating
-
-Choose 4. Update movie rating
-
-Enter movie title: Inception
-
-Enter new rating: 9.0
-Movie 'Inception' updated successfully.
-
-Delete Movie
-
-Choose 3. Delete movie
-
-Enter movie title: Inception
-Movie 'Inception' deleted successfully.
-
-
-Testing
-
+## Testing
 Run the automated test script:
+```bash
 python test.py
-
-
-Adds multiple movies
-
-Tests listing, updating, deleting
-
-Handles errors when a movie is not found
-
-Picks a random movie
+```
+The test script:
+- Adds multiple movies
+- Tests listing, updating, deleting
+- Handles errors when a movie is not found
+- Picks a random movie
 
 
 
 Error Handling
 
-Movie not found → prints a message and does not crash
+- **Movie not found**: Prints a message and does not crash.
+- **API not accessible**: Prints a message if the internet is down.
 
-API not accessible → prints a message if internet is down
+---
 
-Notes
+## Notes
 
-Only Title, Year, and IMDb Rating are stored (no poster)
-
-SQLite database movies.db is auto-generated
-
-Manual rating update is optional since OMDb provides real data
+- Only **Title, Year, and IMDb Rating** are stored in the database.
+- SQLite database `movies.db` is auto-generated in the `data/` folder.
+- Manual rating update is optional since OMDb provides real data.
