@@ -1,71 +1,69 @@
-My Movies Database
+# 🎬 My Movies Database
 
-A Python-based movie database that integrates with the OMDb API. Add movies by title, fetch Title, Year, IMDb Rating, and manage your collection with CRUD operations and statistics.
+A **Python movie database** that integrates with the **OMDb API**. Add movies by title, fetch **Title, Year, IMDb Rating**, and manage your collection with **CRUD operations** and statistics.
 
-Features
+---
 
-Add movies using OMDb API (title only)
+## Features
 
-Store movies locally using SQLite + SQLAlchemy
+- Add movies using **OMDb API** (just by entering the title)  
+- Store movies locally using **SQLite + SQLAlchemy**  
+- List all movies with **year and rating**  
+- Delete movies  
+- Update movie ratings manually (optional)  
+- Show **statistics** (average, median, best & worst movies)  
+- Pick a **random movie**  
+- Search by **partial title**  
+- Sort movies by **rating**  
 
-List all movies with year and rating
+---
 
-Delete movies
+## Project Structure
 
-Update movie ratings manually
-
-Show statistics (average, median, best & worst movies)
-
-Random movie picker
-
-Search by partial title
-
-Sort movies by rating
-
-Project Structure
 my-movies-app/
-├─ movies.py               # Main menu-driven app
-├─ movie_storage_sql.py    # SQLAlchemy database storage
-├─ .env                    # OMDb API key (not committed)
+├─ movies.py # Main menu-driven app
+├─ movie_storage_sql.py # SQLAlchemy database storage
+├─ test.py # Automated script for testing
+├─ .env # OMDb API key (not committed)
+├─ .env.example
 ├─ .gitignore
-├─ movies.db               # SQLite database file (generated automatically)
+├─ movies.db # SQLite database file (auto-generated)
 
-Requirements
 
-Python 3.7+
+---
 
-Packages:
+## Requirements
 
+- Python 3.7+  
+- Packages:
+
+```bash
 pip install sqlalchemy requests python-dotenv
 
-Setup
 
-Clone the repository:
+##Setup
 
-git clone 
+##Clone the repository:
+
+git clone https://github.com/aks-9/movies-data-website-with-sql-apis.git
 cd my-movies-app
 
-
-Create a .env file in the root folder:
-
-OMDB_API_KEY=your_api_key_here
-
-
-Replace your_api_key_here with your OMDb API key.
+##Create a .env file in the root folder (or copy .env.example):
+OMDB_API_KEY=YOUR_API_KEY_HERE
+Replace YOUR_API_KEY_HERE with your OMDb API key.
 Get a free key at OMDb API
 .
 
-Optional: Add .env and database to .gitignore to keep your key safe:
+
+##Optional: Add .env and database file to .gitignore to keep your key safe:
 
 .env
 *.db
 
-How to Run
+Running the App
 python movies.py
 
-
 You will see the menu:
-
 Menu:
 0. Exit
 1. List movies
@@ -78,48 +76,65 @@ Menu:
 8. Movies sorted by rating
 Enter choice (0-8):
 
-Usage Example
-Add a movie:
+
+Usage Examples
+Add a Movie
 
 Choose 2. Add movie (OMDb)
 
 Enter: Inception
-
 Movie 'Inception' added successfully.
 
-List movies:
+List Movies
 
 Choose 1. List movies
-
 1 movies in total
 Inception (2010): 8.8
 
-Update rating:
+
+Update Rating
 
 Choose 4. Update movie rating
 
 Enter movie title: Inception
 
 Enter new rating: 9.0
-
 Movie 'Inception' updated successfully.
 
-Delete movie:
+Delete Movie
 
 Choose 3. Delete movie
 
 Enter movie title: Inception
-
 Movie 'Inception' deleted successfully.
+
+
+Testing
+
+Run the automated test script:
+python test.py
+
+
+Adds multiple movies
+
+Tests listing, updating, deleting
+
+Handles errors when a movie is not found
+
+Picks a random movie
+
+
+
+Error Handling
+
+Movie not found → prints a message and does not crash
+
+API not accessible → prints a message if internet is down
 
 Notes
 
-OMDb API errors: If the API is offline or the movie is not found, the program shows an appropriate message.
+Only Title, Year, and IMDb Rating are stored (no poster)
 
-No poster stored: Only Title, Year, and IMDb Rating are saved.
+SQLite database movies.db is auto-generated
 
-Database: SQLite file movies.db is automatically created.
-
-License
-
-This project is MIT licensed.
+Manual rating update is optional since OMDb provides real data
