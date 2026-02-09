@@ -1,62 +1,56 @@
-import movie_storage_sql as storage
-from movies import fetch_movie
+from movie_storage_sql import add_movie, list_movies, delete_movie, update_movie, clear_movies
 
-def clear_database():
-    """Delete all movies from the database."""
-    movies = list(storage.list_movies().keys())
-    for title in movies:
-        storage.delete_movie(title)
+# ------------------------------
+# Clear existing movies before testing
+# ------------------------------
+clear_movies()
 
-def test_add_movie(title):
-    """Add a movie via OMDb API."""
-    movie = fetch_movie(title)
-    if movie:
-        storage.add_movie(movie["title"], movie["year"], movie["rating"])
+# ------------------------------
+# Test adding a movie
+# ------------------------------
+print("Adding movie: Inception")
+add_movie("Inception", 2010, 8.8, poster=None)
 
-def test_list_movies():
-    """List all movies in the database."""
-    movies = storage.list_movies()
-    print(f"\nListing {len(movies)} movies:")
-    for title, data in movies.items():
-        print(f"{title} ({data['year']}): {data['rating']}")
+print("\nCurrent movies after adding Inception:")
+movies = list_movies()
+print(movies)
 
-def test_update_movie(title, new_rating):
-    """Update rating of a movie."""
-    storage.update_movie(title, new_rating)
+# ------------------------------
+# Test adding another movie
+# ------------------------------
+print("\nAdding movie: Titanic")
+add_movie("Titanic", 1997, 7.8)
+print("\nCurrent movies after adding Titanic:")
+print(list_movies())
 
-def test_delete_movie(title):
-    """Delete a movie from database."""
-    storage.delete_movie(title)
+# ------------------------------
+# Test updating a movie's rating
+# ------------------------------
+print("\nUpdating Inception rating to 9.0")
+update_movie("Inception", 9.0)
+print("\nCurrent movies after update:")
+print(list_movies())
 
-def run_tests():
-    print("=== Clearing database ===")
-    clear_database()
+# ------------------------------
+# Test deleting a movie
+# ------------------------------
+print("\nDeleting movie: Inception")
+delete_movie("Inception")
+print("\nCurrent movies after deleting Inception:")
+print(list_movies())
 
-    print("\n=== Adding movies ===")
-    test_add_movie("Inception")
-    test_add_movie("The Dark Knight")
-    test_add_movie("Jumanji")  # Older movie
-    test_add_movie("NonExistentMovie123")  # Should fail
+# ------------------------------
+# Test deleting a movie that does not exist
+# ------------------------------
+print("\nTrying to delete a non-existing movie: Avatar")
+deleted = delete_movie("Avatar")
+print("Deleted:", deleted)
+print(list_movies())
 
-    test_list_movies()
-
-    print("\n=== Updating movie rating ===")
-    test_update_movie("Jumanji", 7.0)
-    test_list_movies()
-
-    print("\n=== Deleting a movie ===")
-    test_delete_movie("Inception")
-    test_list_movies()
-
-    print("\n=== Random movie ===")
-    movies = storage.list_movies()
-    if movies:
-        import random
-        title = random.choice(list(movies.keys()))
-        data = movies[title]
-        print(f"Random movie: {title} ({data['year']}): {data['rating']}")
-    else:
-        print("No movies left in database.")
-
-if __name__ == "__main__":
-    run_tests()
+# ------------------------------
+# Test updating a movie that does not exist
+# ------------------------------
+print("\nTrying to update a non-existing movie: Avatar")
+updated = update_movie("Avatar", 8.0)
+print("Updated:", updated)
+print(list_movies())
