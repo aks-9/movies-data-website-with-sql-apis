@@ -19,15 +19,20 @@ A **Python movie database** that integrates with the **OMDb API**. Add movies by
 ---
 
 ## Project Structure
-
-my-movies-app/
-├─ movies.py # Main menu-driven app
+```my-movies-app/
+├─ main.py # Main menu-driven app
 ├─ movie_storage_sql.py # SQLAlchemy database storage
-├─ test.py # Automated script for testing
+├─ test.py # Automated test script
+├─ data/
+│ └─ movies.db # SQLite database file
+├─ _static/
+│ ├─ index_template.html # HTML template
+│ └─ style.css # CSS for website
+├─ index.html # Generated website
 ├─ .env # OMDb API key (not committed)
 ├─ .env.example
-├─ .gitignore
-├─ movies.db # SQLite database file (auto-generated)
+└─ .gitignore
+
 
 
 ---
