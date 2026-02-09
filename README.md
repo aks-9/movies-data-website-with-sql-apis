@@ -15,7 +15,8 @@ A **Python movie database** that integrates with the **OMDb API**. Add movies by
 - Pick a **random movie**  
 - Search by **partial title**  
 - Sort movies by **rating**  
-- **Generate a static website** with movie details
+18. **User Profiles**: Multiple users can have their own personalized movie collections.
+19. **Generate a static website**: Create a personal website (e.g., `John.html`) with your movie details.
 
 ---
 
@@ -23,10 +24,12 @@ A **Python movie database** that integrates with the **OMDb API**. Add movies by
 ```
 12. Project- Movie/
 ├── main.py                 # Main menu-driven app
-├── movie_storage_sql.py    # SQL database storage with SQLAlchemy
+├── movie_storage/          # Package for storage files
+│   ├── __init__.py
+│   └── movie_storage_sql.py # SQL database storage with SQLAlchemy
 ├── test.py                 # Automated test script
 ├── data/
-│   └── movies.db           # SQLite database file
+│   └── movies.db           # SQLite database file (auto-generated)
 ├── _static/
 │   ├── index_template.html # HTML template
 │   └── style.css           # CSS for website
@@ -83,7 +86,8 @@ Menu:
 7. Search movie
 8. Movies sorted by rating
 9. Generate website
-Enter choice (0-9):
+10. Switch user
+Enter choice (0-10):
 ```
 
 ## Usage Examples

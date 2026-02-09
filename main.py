@@ -1,12 +1,53 @@
 import random
 import os
-import movie_storage_sql as storage
+import movie_storage.movie_storage_sql as storage
 import requests
 from dotenv import load_dotenv
 
 # Load API key from .env
 load_dotenv()
 API_KEY = os.getenv("OMDB_API_KEY")
+
+
+# ------------------------------
+# User Management
+# ------------------------------
+
+def select_user():
+    """Prompt user to select or create a profile."""
+    while True:
+        users = storage.get_users()
+        print("\nWelcome to the Movie App! 🎬")
+        print("Select a user:")
+        for i, user in enumerate(users, 1):
+            print(f"{i}. {user['name']}")
+        print(f"{len(users) + 1}. Create new user")
+        print(f"{len(users) + 2}. Exit")
+
+        choice = input("\nEnter choice: ").strip()
+        
+        try:
+            choice_int = int(choice)
+            if 1 <= choice_int <= len(users):
+                selected_user = users[choice_int - 1]
+                print(f"\nWelcome back, {selected_user['name']}!")
+                return selected_user['id']
+            elif choice_int == len(users) + 1:
+                new_name = input("Enter name for new user: ").strip()
+                if new_name:
+                    if storage.add_user(new_name):
+                        print(f"User '{new_name}' created successfully.")
+                    else:
+                        print("User already exists or error occurred.")
+                else:
+                    print("Name cannot be empty.")
+            elif choice_int == len(users) + 2:
+                print("Bye!")
+                exit()
+            else:
+                print("Invalid choice.")
+        except ValueError:
+            print("Please enter a number.")
 
 
 # ------------------------------
@@ -24,15 +65,16 @@ def print_menu():
     print("6. Random movie")
     print("7. Search movie")
     print("8. Movies sorted by rating")
-    print("9. Generate website")  # New option
+    print("9. Generate website")
+    print("10. Switch user")
 
 
 # ------------------------------
 # Movie Commands
 # ------------------------------
 
-def command_list_movies():
-    movies = storage.list_movies()
+def command_list_movies(user_id):
+    movies = storage.list_movies(user_id)
     if not movies:
         print("No movies available.")
         return
@@ -42,7 +84,7 @@ def command_list_movies():
         print(f"{title} ({data['year']}): {data['rating']}")
 
 
-def command_add_movie():
+def command_add_movie(user_id):
     if not API_KEY:
         print("OMDb API key not found. Please add it to .env")
         return
@@ -52,10 +94,10 @@ def command_add_movie():
         print("Movie title cannot be empty.")
         return
 
-    # Check if movie already exists
-    movies = storage.list_movies()
+    # Check if movie already exists for this user
+    movies = storage.list_movies(user_id)
     if title in movies:
-        print(f"Movie '{title}' already exists!")
+        print(f"Movie '{title}' already exists in your collection!")
         return
 
     # Query OMDb API
@@ -74,29 +116,33 @@ def command_add_movie():
 
     try:
         movie_title = data["Title"]
-        year = int(data["Year"][:4])  # Some years like '2010–' may appear
+        year_str = data["Year"]
+        # Handle years like '2010–' or '2010–2015'
+        year = int(year_str[:4])
         rating = float(data["imdbRating"]) if data["imdbRating"] != "N/A" else 0.0
     except Exception as e:
         print("Error parsing movie data:", e)
         return
 
-    storage.add_movie(movie_title, year, rating)
-    print(f"Movie '{movie_title}' added successfully.")
+    if storage.add_movie(user_id, movie_title, year, rating):
+        print(f"Movie '{movie_title}' added successfully to your collection!")
+    else:
+        print(f"Failed to add '{movie_title}'.")
 
 
-def command_delete_movie():
+def command_delete_movie(user_id):
     title = input("Enter movie name to delete: ").strip()
     if not title:
         print("Movie title cannot be empty.")
         return
 
-    if storage.delete_movie(title):
+    if storage.delete_movie(user_id, title):
         print(f"Movie '{title}' deleted successfully.")
     else:
-        print("Movie not found.")
+        print("Movie not found in your collection.")
 
 
-def command_update_movie():
+def command_update_movie(user_id):
     title = input("Enter movie name to update: ").strip()
     if not title:
         print("Movie title cannot be empty.")
@@ -109,14 +155,14 @@ def command_update_movie():
         except ValueError:
             print("Invalid rating. Please enter a number.")
 
-    if storage.update_movie(title, rating):
+    if storage.update_movie(user_id, title, rating):
         print(f"Movie '{title}' updated successfully.")
     else:
-        print("Movie not found.")
+        print("Movie not found in your collection.")
 
 
-def command_stats():
-    movies = storage.list_movies()
+def command_stats(user_id):
+    movies = storage.list_movies(user_id)
     if not movies:
         print("No movies available.")
         return
@@ -145,8 +191,8 @@ def command_stats():
             print(f"{title}, {min_rating}")
 
 
-def command_random_movie():
-    movies = list(storage.list_movies().items())
+def command_random_movie(user_id):
+    movies = list(storage.list_movies(user_id).items())
     if not movies:
         print("No movies available.")
         return
@@ -154,13 +200,13 @@ def command_random_movie():
     print(f"{title} ({data['year']}): {data['rating']}")
 
 
-def command_search_movie():
+def command_search_movie(user_id):
     query = input("Enter part of movie name: ").strip().lower()
     if not query:
         print("Search query cannot be empty.")
         return
 
-    movies = storage.list_movies()
+    movies = storage.list_movies(user_id)
     found = False
     for title, data in movies.items():
         if query in title.lower():
@@ -171,8 +217,8 @@ def command_search_movie():
         print("No movies found.")
 
 
-def command_movies_sorted_by_rating():
-    movies = storage.list_movies()
+def command_movies_sorted_by_rating(user_id):
+    movies = storage.list_movies(user_id)
     sorted_movies = sorted(movies.items(), key=lambda x: x[1]['rating'], reverse=True)
     for title, data in sorted_movies:
         print(f"{title} ({data['year']}): {data['rating']}")
@@ -182,9 +228,11 @@ def command_movies_sorted_by_rating():
 # Generate Website
 # ------------------------------
 
-def generate_website():
-    """Generate a static website (index.html) from the current movies."""
-    movies = storage.list_movies()
+def generate_website(user_id):
+    """Generate a static website (Username.html) from the current user's movies."""
+    movies = storage.list_movies(user_id)
+    user_name = storage.get_user_by_id(user_id)
+    
     if not movies:
         print("No movies available to generate website.")
         return
@@ -198,7 +246,7 @@ def generate_website():
     with open(template_path, "r", encoding="utf-8") as f:
         template = f.read()
 
-    template = template.replace("__TEMPLATE_TITLE__", "My Movies Database")
+    template = template.replace("__TEMPLATE_TITLE__", f"{user_name}'s Movies")
 
     # Build movie grid
     movie_grid = ""
@@ -213,13 +261,14 @@ def generate_website():
 
     template = template.replace("__TEMPLATE_MOVIE_GRID__", movie_grid)
 
-    # Write index.html in root folder
+    # Write Username.html in root folder
+    filename = f"{user_name}.html"
     try:
-        with open("index.html", "w", encoding="utf-8") as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(template)
-        print("Website was generated successfully.")
+        print(f"Website '{filename}' was generated successfully.")
     except Exception as e:
-        print("Error writing index.html:", e)
+        print(f"Error writing {filename}:", e)
 
 
 # ------------------------------
@@ -228,34 +277,37 @@ def generate_website():
 
 def main():
     print("********** My Movies Database **********")
+    user_id = select_user()
+    
     while True:
         print_menu()
-        choice = input("Enter choice (0-9): ").strip()
-        if choice not in [str(i) for i in range(10)]:
-            print("Invalid choice. Enter a number between 0 and 9.")
-            continue
-
+        choice = input("Enter choice (0-10): ").strip()
+        
         if choice == "0":
             print("Bye!")
             break
         elif choice == "1":
-            command_list_movies()
+            command_list_movies(user_id)
         elif choice == "2":
-            command_add_movie()
+            command_add_movie(user_id)
         elif choice == "3":
-            command_delete_movie()
+            command_delete_movie(user_id)
         elif choice == "4":
-            command_update_movie()
+            command_update_movie(user_id)
         elif choice == "5":
-            command_stats()
+            command_stats(user_id)
         elif choice == "6":
-            command_random_movie()
+            command_random_movie(user_id)
         elif choice == "7":
-            command_search_movie()
+            command_search_movie(user_id)
         elif choice == "8":
-            command_movies_sorted_by_rating()
+            command_movies_sorted_by_rating(user_id)
         elif choice == "9":
-            generate_website()
+            generate_website(user_id)
+        elif choice == "10":
+            user_id = select_user()
+        else:
+            print("Invalid choice. Enter a number between 0 and 10.")
 
 
 if __name__ == "__main__":
