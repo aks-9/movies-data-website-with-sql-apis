@@ -1,5 +1,6 @@
 import random
-import movie_storage_sql
+import movie_storage_sql as movie_storage
+
 
 def print_menu():
     print("\nMenu:")
@@ -13,54 +14,47 @@ def print_menu():
     print("7. Search movie")
     print("8. Movies sorted by rating")
 
+
 def list_movies():
-    movies = movie_storage.get_movies()
+    movies = movie_storage.list_movies()
+
     print(f"\n{len(movies)} movies in total")
-    for m in movies:
-        print(f"{m['title']} ({m['year']}): {m['rating']}")
+    for title, data in movies.items():
+        print(f"{title} ({data['year']}): {data['rating']}")
+
 
 def add_movie():
-    movies = movie_storage.get_movies()
+    # Title input
+    title = input("Enter new movie name: ").strip()
+    if not title:
+        print("Movie title cannot be empty.")
+        return
 
-    # Title input validation
-    while True:
-        title = input("Enter new movie name: ").strip()
-        if not title:
-            print("Movie title cannot be empty.")
-            continue
-        if any(m['title'].lower() == title.lower() for m in movies):
-            print(f"Movie {title} already exists!")
-            return
-        break
+    # Year input
+    try:
+        year = int(input("Enter movie year: "))
+    except ValueError:
+        print("Invalid year.")
+        return
 
-    # Year input validation
-    while True:
-        try:
-            year = int(input("Enter movie year: "))
-            break
-        except ValueError:
-            print("Invalid year. Please enter a number.")
-
-    # Rating input validation
-    while True:
-        try:
-            rating = float(input("Enter movie rating: "))
-            break
-        except ValueError:
-            print("Invalid rating. Please enter a number.")
+    # Rating input
+    try:
+        rating = float(input("Enter movie rating: "))
+    except ValueError:
+        print("Invalid rating.")
+        return
 
     movie_storage.add_movie(title, year, rating)
-    print(f"Movie {title} successfully added")
+
 
 def delete_movie():
     title = input("Enter movie name to delete: ").strip()
     if not title:
         print("Movie title cannot be empty.")
         return
-    if movie_storage.delete_movie(title):
-        print(f"Movie {title} deleted!")
-    else:
-        print("Movie not found.")
+
+    movie_storage.delete_movie(title)
+
 
 def update_movie():
     title = input("Enter movie name to update: ").strip()
@@ -68,30 +62,33 @@ def update_movie():
         print("Movie title cannot be empty.")
         return
 
-    while True:
-        try:
-            rating = float(input("Enter new rating: "))
-            break
-        except ValueError:
-            print("Invalid rating. Please enter a number.")
+    try:
+        rating = float(input("Enter new rating: "))
+    except ValueError:
+        print("Invalid rating.")
+        return
 
-    if movie_storage.update_movie(title, rating):
-        print("Movie updated!")
-    else:
-        print("Movie not found.")
+    movie_storage.update_movie(title, rating)
+
 
 def stats():
-    movies = movie_storage.get_movies()
+    movies = movie_storage.list_movies()
+
     if not movies:
         print("No movies available.")
         return
 
-    ratings = [m['rating'] for m in movies]
+    ratings = [data["rating"] for data in movies.values()]
+
     average = sum(ratings) / len(ratings)
     sorted_ratings = sorted(ratings)
     n = len(sorted_ratings)
-    median = (sorted_ratings[n // 2] if n % 2 == 1
-              else (sorted_ratings[n // 2 - 1] + sorted_ratings[n // 2]) / 2)
+
+    median = (
+        sorted_ratings[n // 2]
+        if n % 2 == 1
+        else (sorted_ratings[n // 2 - 1] + sorted_ratings[n // 2]) / 2
+    )
 
     max_rating = max(ratings)
     min_rating = min(ratings)
@@ -100,42 +97,59 @@ def stats():
     print(f"Median rating: {median}")
 
     print("Best movie(s):")
-    for m in movies:
-        if m['rating'] == max_rating:
-            print(f"{m['title']}, {max_rating}")
+    for title, data in movies.items():
+        if data["rating"] == max_rating:
+            print(f"{title}, {max_rating}")
 
     print("Worst movie(s):")
-    for m in movies:
-        if m['rating'] == min_rating:
-            print(f"{m['title']}, {min_rating}")
+    for title, data in movies.items():
+        if data["rating"] == min_rating:
+            print(f"{title}, {min_rating}")
+
 
 def random_movie():
-    movies = movie_storage.get_movies()
+    movies = movie_storage.list_movies()
+
     if not movies:
         print("No movies available.")
         return
-    movie = random.choice(movies)
-    print(f"{movie['title']} ({movie['year']}): {movie['rating']}")
+
+    title = random.choice(list(movies.keys()))
+    data = movies[title]
+
+    print(f"{title} ({data['year']}): {data['rating']}")
+
 
 def search_movie():
-    movies = movie_storage.get_movies()
+    movies = movie_storage.list_movies()
+
     query = input("Enter part of movie name: ").strip().lower()
     if not query:
         print("Search query cannot be empty.")
         return
+
     found = False
-    for m in movies:
-        if query in m['title'].lower():
-            print(f"{m['title']} ({m['year']}): {m['rating']}")
+    for title, data in movies.items():
+        if query in title.lower():
+            print(f"{title} ({data['year']}): {data['rating']}")
             found = True
+
     if not found:
         print("No movies found.")
 
+
 def movies_sorted_by_rating():
-    movies = movie_storage.get_movies()
-    sorted_movies = sorted(movies, key=lambda m: m['rating'], reverse=True)
-    for m in sorted_movies:
-        print(f"{m['title']} ({m['year']}): {m['rating']}")
+    movies = movie_storage.list_movies()
+
+    sorted_movies = sorted(
+        movies.items(),
+        key=lambda item: item[1]["rating"],
+        reverse=True
+    )
+
+    for title, data in sorted_movies:
+        print(f"{title} ({data['year']}): {data['rating']}")
+
 
 def main():
     print("********** My Movies Database **********")
@@ -143,9 +157,6 @@ def main():
     while True:
         print_menu()
         choice = input("Enter choice (0-8): ").strip()
-        if choice not in [str(i) for i in range(9)]:
-            print("Invalid choice. Enter a number between 0 and 8.")
-            continue
 
         if choice == "0":
             print("Bye!")
@@ -166,6 +177,9 @@ def main():
             search_movie()
         elif choice == "8":
             movies_sorted_by_rating()
+        else:
+            print("Invalid choice. Enter a number between 0 and 8.")
+
 
 if __name__ == "__main__":
     main()
