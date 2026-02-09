@@ -3,10 +3,10 @@ from sqlalchemy import create_engine, text
 # Database URL
 DB_URL = "sqlite:///movies.db"
 
-# Create the engine
-engine = create_engine(DB_URL, echo=False)  # echo=False to avoid too much debug output
+# Create SQLAlchemy engine
+engine = create_engine(DB_URL, echo=False)
 
-# Create movies table if it doesn't exist
+# Create table if it doesn't exist
 with engine.connect() as connection:
     connection.execute(text("""
         CREATE TABLE IF NOT EXISTS movies (
@@ -20,11 +20,7 @@ with engine.connect() as connection:
 
 
 def list_movies():
-    """
-    Retrieve all movies from the database.
-    Returns:
-        dict: {title: {"year": year, "rating": rating}}
-    """
+    """Retrieve all movies from the database."""
     with engine.connect() as connection:
         result = connection.execute(text("SELECT title, year, rating FROM movies"))
         movies = result.fetchall()
@@ -33,13 +29,7 @@ def list_movies():
 
 
 def add_movie(title, year, rating):
-    """
-    Add a new movie to the database.
-    Args:
-        title (str): Movie title
-        year (int): Movie release year
-        rating (float): Movie IMDb rating
-    """
+    """Add a new movie to the database."""
     try:
         with engine.connect() as connection:
             connection.execute(
@@ -53,11 +43,7 @@ def add_movie(title, year, rating):
 
 
 def delete_movie(title):
-    """
-    Delete a movie from the database by title.
-    Args:
-        title (str): Movie title to delete
-    """
+    """Delete a movie from the database by title."""
     with engine.connect() as connection:
         result = connection.execute(text("DELETE FROM movies WHERE title = :title"), {"title": title})
         connection.commit()
@@ -68,12 +54,7 @@ def delete_movie(title):
 
 
 def update_movie(title, rating):
-    """
-    Update the rating of a movie.
-    Args:
-        title (str): Movie title
-        rating (float): New rating
-    """
+    """Update the rating of a movie."""
     with engine.connect() as connection:
         result = connection.execute(
             text("UPDATE movies SET rating = :rating WHERE title = :title"),
