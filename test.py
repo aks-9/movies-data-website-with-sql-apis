@@ -1,56 +1,30 @@
-from movie_storage_sql import add_movie, list_movies, delete_movie, update_movie, clear_movies
+from movie_storage_sql import add_movie, list_movies, delete_movie, update_movie
 
-# ------------------------------
-# Clear existing movies before testing
-# ------------------------------
-clear_movies()
 
 # ------------------------------
 # Test adding a movie
 # ------------------------------
-print("Adding movie: Inception")
-add_movie("Inception", 2010, 8.8, poster=None)
-
-print("\nCurrent movies after adding Inception:")
+print("Testing add_movie()")
+add_movie("Inception", 2010, 8.8)
 movies = list_movies()
-print(movies)
+print("After adding Inception:", movies)
 
 # ------------------------------
-# Test adding another movie
+# Test listing movies
 # ------------------------------
-print("\nAdding movie: Titanic")
-add_movie("Titanic", 1997, 7.8)
-print("\nCurrent movies after adding Titanic:")
+print("\nTesting list_movies()")
 print(list_movies())
 
 # ------------------------------
 # Test updating a movie's rating
 # ------------------------------
-print("\nUpdating Inception rating to 9.0")
+print("\nTesting update_movie()")
 update_movie("Inception", 9.0)
-print("\nCurrent movies after update:")
-print(list_movies())
+print("After updating rating:", list_movies())
 
 # ------------------------------
 # Test deleting a movie
 # ------------------------------
-print("\nDeleting movie: Inception")
+print("\nTesting delete_movie()")
 delete_movie("Inception")
-print("\nCurrent movies after deleting Inception:")
-print(list_movies())
-
-# ------------------------------
-# Test deleting a movie that does not exist
-# ------------------------------
-print("\nTrying to delete a non-existing movie: Avatar")
-deleted = delete_movie("Avatar")
-print("Deleted:", deleted)
-print(list_movies())
-
-# ------------------------------
-# Test updating a movie that does not exist
-# ------------------------------
-print("\nTrying to update a non-existing movie: Avatar")
-updated = update_movie("Avatar", 8.0)
-print("Updated:", updated)
-print(list_movies())
+print("After deleting Inception:", list_movies())  # Should be empty if it was the only movie

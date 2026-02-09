@@ -1,5 +1,17 @@
 import random
+import os
 import movie_storage_sql as storage
+import requests
+from dotenv import load_dotenv
+
+# Load API key from .env
+load_dotenv()
+API_KEY = os.getenv("OMDB_API_KEY")
+
+
+# ------------------------------
+# Menu
+# ------------------------------
 
 def print_menu():
     print("\nMenu:")
@@ -14,12 +26,12 @@ def print_menu():
     print("8. Movies sorted by rating")
     print("9. Generate website")  # New option
 
+
 # ------------------------------
 # Movie Commands
 # ------------------------------
 
 def command_list_movies():
-    """Retrieve and display all movies from the database."""
     movies = storage.list_movies()
     if not movies:
         print("No movies available.")
@@ -29,15 +41,9 @@ def command_list_movies():
     for title, data in movies.items():
         print(f"{title} ({data['year']}): {data['rating']}")
 
-def command_add_movie():
-    """Add a new movie using OMDb API (title only)."""
-    import requests
-    from dotenv import load_dotenv
-    import os
 
-    load_dotenv()
-    api_key = os.getenv("OMDB_API_KEY")
-    if not api_key:
+def command_add_movie():
+    if not API_KEY:
         print("OMDb API key not found. Please add it to .env")
         return
 
@@ -54,7 +60,7 @@ def command_add_movie():
 
     # Query OMDb API
     try:
-        url = f"http://www.omdbapi.com/?apikey={api_key}&t={title}"
+        url = f"http://www.omdbapi.com/?apikey={API_KEY}&t={title}"
         response = requests.get(url)
         data = response.json()
     except Exception as e:
@@ -77,6 +83,7 @@ def command_add_movie():
     storage.add_movie(movie_title, year, rating)
     print(f"Movie '{movie_title}' added successfully.")
 
+
 def command_delete_movie():
     title = input("Enter movie name to delete: ").strip()
     if not title:
@@ -87,6 +94,7 @@ def command_delete_movie():
         print(f"Movie '{title}' deleted successfully.")
     else:
         print("Movie not found.")
+
 
 def command_update_movie():
     title = input("Enter movie name to update: ").strip()
@@ -105,6 +113,7 @@ def command_update_movie():
         print(f"Movie '{title}' updated successfully.")
     else:
         print("Movie not found.")
+
 
 def command_stats():
     movies = storage.list_movies()
@@ -135,6 +144,7 @@ def command_stats():
         if data['rating'] == min_rating:
             print(f"{title}, {min_rating}")
 
+
 def command_random_movie():
     movies = list(storage.list_movies().items())
     if not movies:
@@ -142,6 +152,7 @@ def command_random_movie():
         return
     title, data = random.choice(movies)
     print(f"{title} ({data['year']}): {data['rating']}")
+
 
 def command_search_movie():
     query = input("Enter part of movie name: ").strip().lower()
@@ -159,11 +170,13 @@ def command_search_movie():
     if not found:
         print("No movies found.")
 
+
 def command_movies_sorted_by_rating():
     movies = storage.list_movies()
     sorted_movies = sorted(movies.items(), key=lambda x: x[1]['rating'], reverse=True)
     for title, data in sorted_movies:
         print(f"{title} ({data['year']}): {data['rating']}")
+
 
 # ------------------------------
 # Generate Website
@@ -176,16 +189,18 @@ def generate_website():
         print("No movies available to generate website.")
         return
 
-    # Read template
-    try:
-        with open("index_template.html", "r", encoding="utf-8") as f:
-            template = f.read()
-    except FileNotFoundError:
-        print("Template file 'index_template.html' not found!")
+    template_path = os.path.join("_static", "index_template.html")
+    if not os.path.exists(template_path):
+        print(f"Template file '{template_path}' not found!")
         return
+
+    # Read template
+    with open(template_path, "r", encoding="utf-8") as f:
+        template = f.read()
 
     template = template.replace("__TEMPLATE_TITLE__", "My Movies Database")
 
+    # Build movie grid
     movie_grid = ""
     for title, data in movies.items():
         movie_item = f"""
@@ -198,12 +213,14 @@ def generate_website():
 
     template = template.replace("__TEMPLATE_MOVIE_GRID__", movie_grid)
 
+    # Write index.html in root folder
     try:
         with open("index.html", "w", encoding="utf-8") as f:
             f.write(template)
         print("Website was generated successfully.")
     except Exception as e:
         print("Error writing index.html:", e)
+
 
 # ------------------------------
 # Main Menu
@@ -239,6 +256,7 @@ def main():
             command_movies_sorted_by_rating()
         elif choice == "9":
             generate_website()
+
 
 if __name__ == "__main__":
     main()

@@ -1,69 +1,80 @@
 from sqlalchemy import create_engine, text
+import os
 
+# ------------------------------
+# Ensure data folder exists
+# ------------------------------
+if not os.path.exists("data"):
+    os.makedirs("data")
+
+# ------------------------------
 # Database URL
-DB_URL = "sqlite:///movies.db"
+# ------------------------------
+DB_PATH = os.path.join("data", "movies.db")
+DB_URL = f"sqlite:///{DB_PATH}"
 
-# Create engine
-engine = create_engine(DB_URL, echo=True)  # echo=True prints SQL statements
+# Create SQLAlchemy engine
+engine = create_engine(DB_URL, echo=True)  # echo=True prints all SQL statements for debugging
 
-# Create movies table if not exists (with poster column)
+# ------------------------------
+# Create movies table if not exists
+# ------------------------------
 with engine.connect() as connection:
     connection.execute(text("""
         CREATE TABLE IF NOT EXISTS movies (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT UNIQUE NOT NULL,
             year INTEGER NOT NULL,
-            rating REAL NOT NULL,
-            poster TEXT
+            rating REAL NOT NULL
         )
     """))
     connection.commit()
 
+
 # ------------------------------
-# CRUD FUNCTIONS
+# CRUD Functions
 # ------------------------------
 
 def list_movies():
     """Retrieve all movies from the database."""
     with engine.connect() as connection:
-        result = connection.execute(text("SELECT title, year, rating, poster FROM movies"))
+        result = connection.execute(text("SELECT title, year, rating FROM movies"))
         movies = result.fetchall()
-    # Return as dictionary
-    return {row[0]: {"year": row[1], "rating": row[2], "poster": row[3]} for row in movies}
 
-def add_movie(title, year, rating, poster=None):
+    return {row[0]: {"year": row[1], "rating": row[2]} for row in movies}
+
+
+def add_movie(title, year, rating):
     """Add a new movie to the database."""
     with engine.connect() as connection:
         try:
             connection.execute(
-                text("INSERT INTO movies (title, year, rating, poster) VALUES (:title, :year, :rating, :poster)"),
-                {"title": title, "year": year, "rating": rating, "poster": poster}
+                text("INSERT INTO movies (title, year, rating) VALUES (:title, :year, :rating)"),
+                {"title": title, "year": year, "rating": rating}
             )
             connection.commit()
             print(f"Movie '{title}' added successfully.")
         except Exception as e:
             print(f"Error adding movie '{title}': {e}")
 
+
 def delete_movie(title):
-    """Delete a movie by title. Returns True if deleted, False if not found."""
+    """Delete a movie from the database."""
     with engine.connect() as connection:
-        result = connection.execute(text("DELETE FROM movies WHERE title = :title"), {"title": title})
+        result = connection.execute(
+            text("DELETE FROM movies WHERE title = :title"),
+            {"title": title}
+        )
         connection.commit()
-        return result.rowcount > 0
+        return result.rowcount > 0  # True if a row was deleted
+
 
 def update_movie(title, rating):
-    """Update a movie's rating. Returns True if updated, False if not found."""
+    """Update a movie's rating in the database."""
     with engine.connect() as connection:
         result = connection.execute(
             text("UPDATE movies SET rating = :rating WHERE title = :title"),
             {"title": title, "rating": rating}
         )
         connection.commit()
-        return result.rowcount > 0
-
-def clear_movies():
-    """Delete all movies from the database."""
-    with engine.connect() as connection:
-        connection.execute(text("DELETE FROM movies"))
-        connection.commit()
-        print("All movies cleared.")
+        return result.rowcount > 0  # True if a row was updated
