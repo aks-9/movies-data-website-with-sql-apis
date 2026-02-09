@@ -1,16 +1,21 @@
-from movie_storage_sql import add_movie, list_movies, delete_movie, update_movie
+import movie_storage_sql as storage
 
-# Test adding a movie
-add_movie("Inception", 2010, 8.8)
+# Clear database first (optional)
+for title in list(storage.list_movies().keys()):
+    storage.delete_movie(title)
 
-# Test listing movies
-movies = list_movies()
-print(movies)
+# Add movies
+storage.add_movie("Inception", 2010, 8.8)
+storage.add_movie("The Dark Knight", 2008, 9.0)
+storage.add_movie("Jumanji", 1995, 6.5)
 
-# Test updating a movie's rating
-update_movie("Inception", 9.0)
-print(list_movies())
+# List movies
+print(storage.list_movies())
 
-# Test deleting a movie
-delete_movie("Inception")
-print(list_movies())  # Should be empty if it was the only movie
+# Update rating
+storage.update_movie("Jumanji", 7.0)
+print(storage.list_movies())
+
+# Delete movie
+storage.delete_movie("Inception")
+print(storage.list_movies())
