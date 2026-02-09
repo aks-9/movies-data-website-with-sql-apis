@@ -1,8 +1,9 @@
 import random
-import movie_storage_sql as movie_storage
+import movie_storage_sql as storage
 
 
 def print_menu():
+    """Display the main menu options."""
     print("\nMenu:")
     print("0. Exit")
     print("1. List movies")
@@ -15,48 +16,44 @@ def print_menu():
     print("8. Movies sorted by rating")
 
 
-def list_movies():
-    movies = movie_storage.list_movies()
-
+def command_list_movies():
+    """Retrieve and display all movies from the database."""
+    movies = storage.list_movies()
     print(f"\n{len(movies)} movies in total")
+
     for title, data in movies.items():
         print(f"{title} ({data['year']}): {data['rating']}")
 
 
-def add_movie():
-    # Title input
+def command_add_movie():
+    """Prompt the user and add a new movie to the database."""
     title = input("Enter new movie name: ").strip()
     if not title:
         print("Movie title cannot be empty.")
         return
 
-    # Year input
     try:
         year = int(input("Enter movie year: "))
-    except ValueError:
-        print("Invalid year.")
-        return
-
-    # Rating input
-    try:
         rating = float(input("Enter movie rating: "))
     except ValueError:
-        print("Invalid rating.")
+        print("Year and rating must be numbers.")
         return
 
-    movie_storage.add_movie(title, year, rating)
+    storage.add_movie(title, year, rating)
 
 
-def delete_movie():
+def command_delete_movie():
+    """Prompt the user and delete a movie from the database."""
     title = input("Enter movie name to delete: ").strip()
     if not title:
         print("Movie title cannot be empty.")
         return
 
-    movie_storage.delete_movie(title)
+    storage.delete_movie(title)
 
 
-def update_movie():
+def command_update_movie():
+    """Prompt the user and update a movie's rating."""
     title = input("Enter movie name to update: ").strip()
     if not title:
         print("Movie title cannot be empty.")
@@ -65,14 +62,15 @@ def update_movie():
     try:
         rating = float(input("Enter new rating: "))
     except ValueError:
-        print("Invalid rating.")
+        print("Rating must be a number.")
         return
 
-    movie_storage.update_movie(title, rating)
+    storage.update_movie(title, rating)
 
 
-def stats():
-    movies = movie_storage.list_movies()
+def command_stats():
+    """Display statistics about movie ratings."""
+    movies = storage.list_movies()
 
     if not movies:
         print("No movies available.")
@@ -82,12 +80,12 @@ def stats():
 
     average = sum(ratings) / len(ratings)
     sorted_ratings = sorted(ratings)
-    n = len(sorted_ratings)
+    count = len(sorted_ratings)
 
     median = (
-        sorted_ratings[n // 2]
-        if n % 2 == 1
-        else (sorted_ratings[n // 2 - 1] + sorted_ratings[n // 2]) / 2
+        sorted_ratings[count // 2]
+        if count % 2 == 1
+        else (sorted_ratings[count // 2 - 1] + sorted_ratings[count // 2]) / 2
     )
 
     max_rating = max(ratings)
@@ -107,8 +105,9 @@ def stats():
             print(f"{title}, {min_rating}")
 
 
-def random_movie():
-    movies = movie_storage.list_movies()
+def command_random_movie():
+    """Display a random movie from the database."""
+    movies = storage.list_movies()
 
     if not movies:
         print("No movies available.")
@@ -120,10 +119,11 @@ def random_movie():
     print(f"{title} ({data['year']}): {data['rating']}")
 
 
-def search_movie():
-    movies = movie_storage.list_movies()
-
+def command_search_movie():
+    """Search for movies by partial title match."""
+    movies = storage.list_movies()
     query = input("Enter part of movie name: ").strip().lower()
+
     if not query:
         print("Search query cannot be empty.")
         return
@@ -138,8 +138,9 @@ def search_movie():
         print("No movies found.")
 
 
-def movies_sorted_by_rating():
-    movies = movie_storage.list_movies()
+def command_movies_sorted_by_rating():
+    """Display movies sorted by rating (highest first)."""
+    movies = storage.list_movies()
 
     sorted_movies = sorted(
         movies.items(),
@@ -152,6 +153,7 @@ def movies_sorted_by_rating():
 
 
 def main():
+    """Run the main menu loop."""
     print("********** My Movies Database **********")
 
     while True:
@@ -162,21 +164,21 @@ def main():
             print("Bye!")
             break
         elif choice == "1":
-            list_movies()
+            command_list_movies()
         elif choice == "2":
-            add_movie()
+            command_add_movie()
         elif choice == "3":
-            delete_movie()
+            command_delete_movie()
         elif choice == "4":
-            update_movie()
+            command_update_movie()
         elif choice == "5":
-            stats()
+            command_stats()
         elif choice == "6":
-            random_movie()
+            command_random_movie()
         elif choice == "7":
-            search_movie()
+            command_search_movie()
         elif choice == "8":
-            movies_sorted_by_rating()
+            command_movies_sorted_by_rating()
         else:
             print("Invalid choice. Enter a number between 0 and 8.")
 
